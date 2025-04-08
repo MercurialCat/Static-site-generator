@@ -1,8 +1,6 @@
 #import ?
 
 
-
-
 class HTMLNode:
     def __init__(self, tag=None, value=None, children=None, props=None):
         self.tag = tag 
@@ -45,4 +43,29 @@ class LeafNode(HTMLNode):
         html_setup = opening_tag + self.value + closing_tag
         return html_setup
     
-    
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        self.original_children = children
+        super().__init__(tag, None, children, props)    
+
+    def to_html(self):
+        if self.tag is None:
+            raise ValueError("Must have a tag")
+        
+        if self.original_children is None:
+            raise ValueError("Must have a child")
+        
+        start_tag = f"<{self.tag}{self.props_to_html()}>"
+        end_tag = f"</{self.tag}>"
+
+        if len(self.children) == 0:
+            return start_tag + end_tag
+
+        child_list = []
+        for child in self.children:
+            g = child.to_html()
+            child_list.append(g)
+        h = "".join(child_list)
+        final_text = start_tag + h + end_tag
+        return final_text            
+        
