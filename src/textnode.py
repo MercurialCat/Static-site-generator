@@ -22,8 +22,8 @@ class TextNode:
 		return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
 	
 def text_node_to_html_node(text_node):
-	if text_node.text_type == TextType.TEXT:
-		return LeafNode(text_node.value)
+	if text_node.text_type == TextType.NORMAL:
+		return LeafNode(None, text_node.text)
 	
 	elif text_node.text_type == TextType.BOLD:
 		return LeafNode("b", text_node.text)
@@ -35,10 +35,14 @@ def text_node_to_html_node(text_node):
 		return LeafNode("code", text_node.text)
 	
 	elif text_node.text_type == TextType.LINK:
-		return LeafNode("a", text_node.text, "href")
+		if not text_node.url:
+			raise ValueError("Link type must include a valid url")
+		return LeafNode("a", text_node.text, {"href" : text_node.url})
 	
 	elif text_node.text_type == TextType.IMAGE:
-		return LeafNode("img","",{"src", "alt"})
+		if not text_node.url:
+			raise ValueError("Image must be a valid src url")
+		return LeafNode("img","",{"src": text_node.url, "alt": text_node.text})
+
 	
-	elif text_node.type not in TextType:
-		raise Exception("Text node does not match any known textype")
+	raise ValueError("Unknown TextType: please check your file and verify correct text_type")
