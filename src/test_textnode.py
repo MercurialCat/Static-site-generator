@@ -83,10 +83,5 @@ class TestTextNode(unittest.TestCase):
         with self.assertRaises(ValueError):
             text_node_to_html_node(node)
 
-
-    def test_unknown_type(self):
-        pass
-
-
 if __name__ == "__main__":
     unittest.main()
