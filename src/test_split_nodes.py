@@ -1,8 +1,9 @@
 import unittest
 from textnode import TextNode, TextType
-from split_nodes import split_nodes_delimiter
+from split_nodes import split_nodes_delimiter, split_nodes_link, split_nodes_image
 
 class TestSplitNodesDelimiter(unittest.TestCase):
+    # All delimiter splitting tests here
     def test_split_nodes_delimiter(self): #Basic test with a simple delimiter (e.g., **bold**)
         node = TextNode("This sentence has a **bold** word", TextType.NORMAL, None)
         result = split_nodes_delimiter([node], "**", TextType.BOLD)
@@ -91,7 +92,99 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         self.assertEqual(result[2].text, " professor snape")
         self.assertEqual(result[2].text_type, TextType.NORMAL)
 
+    # Our first basic test used bold as the base case so no need to check again.
+    # Test cases that might need to be added in the future: test mixed node types, delims at the start or end of a string. 
 
-    #our first basic test used bold as the base case so no need to check again.
-    
-    #Test cases that might need to be added in the future: test mixed node types, delims at the start or end of a string. 
+class TestSplitNodesImage(unittest.TestCase):
+    # All image splitting tests here
+    def test_split_nodes_image_basic(self):
+        node = TextNode("This is text with an ![image](https://example.com/img.png)", TextType.NORMAL, None)
+        new_nodes = split_nodes_image([node])
+
+        self.assertListEqual([
+            TextNode("This is text with an ", TextType.NORMAL, None),
+            TextNode("image", TextType.IMAGE, "https://example.com/img.png")
+            ], new_nodes)
+
+    def test_split_nodes_no_image(self):
+        node = TextNode("I seem to have lost my image...", TextType.NORMAL, None)
+        new_node = split_nodes_image([node])
+
+        self.assertListEqual([node], new_node)
+
+    def test_split_image_multiple_images(self):
+        node = TextNode("This is text with an ![image](https://example.com/img.png) and another ![image](https://example.com/img.png)", TextType.NORMAL, None)
+        new_nodes = split_nodes_image([node])
+
+        self.assertListEqual([
+            TextNode("This is text with an ", TextType.NORMAL, None),
+            TextNode("image", TextType.IMAGE, "https://example.com/img.png"),
+            TextNode(" and another ", TextType.NORMAL, None),
+            TextNode("image", TextType.IMAGE, "https://example.com/img.png")
+            ], new_nodes)
+
+    def test_split_image_special_characters(self):
+        node = TextNode("This node will have special ![im$age with spa©es](https://example.com/path/to/image%20with%20spaces.jpg)", TextType.NORMAL, None)
+        new_nodes = split_nodes_image([node])
+
+        self.assertListEqual([
+            TextNode("This node will have special ", TextType.NORMAL, None),
+            TextNode("im$age with spa©es", TextType.IMAGE, "https://example.com/path/to/image%20with%20spaces.jpg")
+        ], new_nodes)
+
+
+
+
+
+        
+
+
+
+
+
+
+
+class TestSplitNodesLink(unittest.TestCase):
+    # All link splitting tests here    
+    def split_nodes_link_basic_test(self):
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+   
