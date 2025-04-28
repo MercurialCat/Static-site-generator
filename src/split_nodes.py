@@ -73,3 +73,17 @@ def split_nodes_link(old_nodes):
                         new_nodes.extend(split_nodes_link([last_node]))
     return new_nodes
    
+def text_to_textnodes(text):
+    initial_node = [TextNode(text, TextType.NORMAL, None)] #initial node for our text
+
+    #checking our nodes for delimiter attributes 
+    node_bold_check = split_nodes_delimiter(initial_node, "**", TextType.BOLD)
+    node_italic_check = split_nodes_delimiter(node_bold_check, "_", TextType.ITALIC)
+    node_code_check = split_nodes_delimiter(node_italic_check, "`", TextType.CODE)
+
+    #checking our nodes for images and links
+    node_image_check = split_nodes_image(node_code_check)
+    node_link_check = split_nodes_link(node_image_check)
+    return node_link_check
+
+    #can also get clean with it and just use g = split_nodes_link(split_nodes_image(split_nodes_delimiter(text)))

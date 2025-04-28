@@ -1,6 +1,6 @@
 import unittest
 from textnode import TextNode, TextType
-from split_nodes import split_nodes_delimiter, split_nodes_link, split_nodes_image
+from split_nodes import split_nodes_delimiter, split_nodes_link, split_nodes_image, text_to_textnodes
 
 class TestSplitNodesDelimiter(unittest.TestCase):
     # All delimiter splitting tests here
@@ -132,28 +132,59 @@ class TestSplitNodesImage(unittest.TestCase):
             TextNode("im$age with spa©es", TextType.IMAGE, "https://example.com/path/to/image%20with%20spaces.jpg")
         ], new_nodes)
 
-
-
-
-
-        
-
-
-
-
-
-
-
 class TestSplitNodesLink(unittest.TestCase):
     # All link splitting tests here    
     def split_nodes_link_basic_test(self):
-        pass
+        node = TextNode("This is text with an [link](https://www.boot.dev/dashboard)", TextType.NORMAL, None)
+        new_nodes = split_nodes_link([node])
 
+        self.assertListEqual([
+            TextNode("This is text with an ", TextType.NORMAL, None),
+            TextNode("link", TextType.LINK, "https://www.boot.dev/dashboard")
+            ], new_nodes)
 
+    def test_split_nodes_no_link(self):
+        node = TextNode("I seem to have lost my link...", TextType.NORMAL, None)
+        new_node = split_nodes_link([node])
 
+        self.assertListEqual([node], new_node)
 
+    def test_split_link_multiple_links(self):
+        node = TextNode("This is text with an [link](https://www.boot.dev/dashboard) and another [link](https://www.boot.dev/dashboard)", TextType.NORMAL, None)
+        new_nodes = split_nodes_link([node])
 
+        self.assertListEqual([
+            TextNode("This is text with an ", TextType.NORMAL, None),
+            TextNode("link", TextType.LINK, "https://www.boot.dev/dashboard"),
+            TextNode(" and another ", TextType.NORMAL, None),
+            TextNode("link", TextType.LINK, "https://www.boot.dev/dashboard")
+            ], new_nodes)
+        
+    def test_split_link_special_characters(self):
+        node = TextNode("This node will have special [li$nk with spa©es](https://example.com/path/to/image%20with%20spaces.jpg)", TextType.NORMAL, None)
+        new_nodes = split_nodes_link([node])
 
+        self.assertListEqual([
+            TextNode("This node will have special ", TextType.NORMAL, None),
+            TextNode("li$nk with spa©es", TextType.LINK, "https://example.com/path/to/image%20with%20spaces.jpg")
+        ], new_nodes)
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        new_nodes = text_to_textnodes(text)
+
+        self.assertListEqual([
+            TextNode("This is ", TextType.NORMAL, None),
+            TextNode("text", TextType.BOLD, None),
+            TextNode(" with an ", TextType.NORMAL, None),
+            TextNode("italic", TextType.ITALIC, None),
+            TextNode(" word and a ", TextType.NORMAL, None),
+            TextNode("code block", TextType.CODE, None),
+            TextNode(" and an ", TextType.NORMAL, None),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.NORMAL, None),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ], new_nodes) 
 
 
 
